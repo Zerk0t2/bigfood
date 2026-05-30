@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>БИГ FOOD</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent: #ff6b35;
+            --accent-hover: #e55a2b;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --input-bg: #f9f9f9;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #ff6b35;
+            --accent-hover: #ff8c5a;
+            --card-bg: #1f2940;
+            --border: #2d3a5a;
+            --input-bg: #2a3550;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            background: var(--bg-primary);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 2px;
+            animation: logoPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); text-shadow: 0 0 20px rgba(255,107,53,0.5); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-8px) rotate(2deg); }
+            75% { transform: translateY(5px) rotate(-2deg); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        @keyframes rotateBadge {
+            0% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+            100% { transform: rotate(-3deg); }
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+
+        .theme-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .theme-btn:hover { background: var(--accent); color: white; transform: rotate(10deg) scale(1.05); }
+
+        .cart-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .cart-btn:hover { background: var(--accent-hover); }
+        .cart-btn.bounce { animation: bounce 0.3s ease-in-out; }
+
+        .cart-count {
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        main { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            font-size: 1.8rem;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), #ff4444, var(--accent));
+            background-size: 200% 100%;
+            border-radius: 2px;
+            animation: shimmer 2s linear infinite;
+        }
+
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto 25px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 50px;
+            border-radius: 25px;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .search-box input:focus { outline: none; border-color: var(--accent); }
+        .search-box .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+        .search-box .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: none;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .cat-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .cat-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .cat-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .food-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            animation: fadeInScale 0.5s ease-out backwards;
+        }
+        .food-card:nth-child(1) { animation-delay: 0.05s; }
+        .food-card:nth-child(2) { animation-delay: 0.1s; }
+        .food-card:nth-child(3) { animation-delay: 0.15s; }
+        .food-card:nth-child(4) { animation-delay: 0.2s; }
+        .food-card:nth-child(5) { animation-delay: 0.25s; }
+        .food-card:nth-child(6) { animation-delay: 0.3s; }
+        .food-card:nth-child(7) { animation-delay: 0.35s; }
+        .food-card:nth-child(8) { animation-delay: 0.4s; }
+        .food-card:nth-child(9) { animation-delay: 0.45s; }
+        .food-card:nth-child(10) { animation-delay: 0.5s; }
+        .food-card:nth-child(11) { animation-delay: 0.55s; }
+        .food-card:nth-child(12) { animation-delay: 0.6s; }
+        .food-card:nth-child(13) { animation-delay: 0.65s; }
+        .food-card:nth-child(14) { animation-delay: 0.7s; }
+        .food-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 12px 30px rgba(255,107,53,0.3); }
+
+        .food-img {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffecd2, #fcb69f, #ffecd2);
+            background-size: 200% 200%;
+            animation: gradientMove 4s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .food-img .emoji-badge {
+            font-size: 5rem;
+            filter: drop-shadow(0 4px 15px rgba(0,0,0,0.2));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .food-img:hover .emoji-badge {
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        .food-info { padding: 20px; }
+        .food-cuisine {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .food-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 6px;
+            animation: rotateBadge 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .badge-hot { background: #ff4444; color: white; animation: fireGlow 1s ease-in-out infinite alternate; }
+        .badge-hit { background: #ff6b35; color: white; }
+        .badge-new { background: #27ae60; color: white; animation: bounce 2s ease-in-out infinite; }
+        .badge-spicy { background: #e74c3c; color: white; animation: fireGlow 0.8s ease-in-out infinite alternate; }
+        .badge-veg { background: #2ecc71; color: white; }
+        .badge-chef { background: #9b59b6; color: white; }
+
+        @keyframes fireGlow {
+            from { box-shadow: 0 0 5px rgba(255,68,68,0.5); }
+            to { box-shadow: 0 0 15px rgba(255,68,68,0.9), 0 0 30px rgba(255,68,68,0.3); }
+        }
+
+        .food-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+        .food-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 15px; line-height: 1.4; }
+        .food-price { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+        .food-bottom { display: flex; justify-content: space-between; align-items: center; }
+
+        .add-btn {
+            background: linear-gradient(135deg, var(--accent), #ff8c5a);
+            background-size: 200% 200%;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            animation: shimmer 3s ease infinite;
+        }
+        .add-btn:hover { transform: scale(1.08); box-shadow: 0 4px 15px rgba(255,107,53,0.4); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.6); }
+
+        .detail-img {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ffecd2, #fcb69f, #ffecd2);
+            background-size: 200% 200%;
+            animation: gradientMove 4s ease infinite;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .detail-img .emoji-badge-lg {
+            font-size: 7rem;
+            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .detail-body { padding: 25px; }
+        .detail-name { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
+        .detail-desc { color: var(--text-secondary); font-size: 1rem; line-height: 1.5; margin-bottom: 15px; }
+        .detail-price { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+
+        .detail-add-btn {
+            width: 100%;
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 14px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .detail-add-btn:hover { background: var(--accent-hover); }
+
+        .detail-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .detail-rating { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .detail-stars { display: flex; gap: 4px; }
+        .detail-stars .star { font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; color: #ccc; }
+        .detail-stars .star:hover { transform: scale(1.3); }
+
+        .review-item {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .review-author { font-weight: 600; font-size: 0.9rem; }
+        .review-stars-display { color: #ffc107; font-size: 0.8rem; }
+        .review-text { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; }
+        .no-reviews { color: var(--text-secondary); text-align: center; padding: 15px; font-size: 0.9rem; }
+
+        .add-review-form { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        .add-review-form input,
+        .add-review-form textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            resize: none;
+            font-family: inherit;
+        }
+        .add-review-form input:focus,
+        .add-review-form textarea:focus { outline: none; border-color: var(--accent); }
+
+        .submit-review-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            align-self: flex-start;
+            transition: all 0.3s;
+        }
+        .submit-review-btn:hover { background: var(--accent-hover); }
+
+        .cart-items { margin-bottom: 20px; }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 600; margin-bottom: 5px; }
+        .cart-item-price { color: var(--accent); font-weight: 600; }
+        .cart-item-actions { display: flex; align-items: center; gap: 10px; }
+
+        .qty-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .qty-btn:hover { background: var(--accent); color: white; }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .checkout-form { display: flex; flex-direction: column; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-weight: 600; font-size: 0.9rem; }
+        .form-group input {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 15px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        .form-group input:focus { outline: none; border-color: var(--accent); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .promo-row { display: flex; gap: 10px; align-items: flex-end; }
+        .promo-row .form-group { flex: 1; }
+        .promo-apply-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .promo-apply-btn:hover { background: var(--accent-hover); }
+
+        .promo-msg { font-size: 0.85rem; font-weight: 600; margin-top: 4px; }
+        .promo-msg.ok { color: #27ae60; }
+        .promo-msg.err { color: #e74c3c; }
+
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), #ff4444);
+            background-size: 200% 200%;
+            animation: shimmer 3s ease infinite;
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        .checkout-btn:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(255,68,68,0.4); }
+
+        .empty-cart { text-align: center; padding: 40px; color: var(--text-secondary); }
+
+        .order-success { text-align: center; padding: 30px; }
+        .order-success .icon { font-size: 4rem; margin-bottom: 15px; }
+        .order-success h3 { font-size: 1.3rem; margin-bottom: 10px; }
+        .order-success p { color: var(--text-secondary); }
+
+        .discount-line {
+            display: flex;
+            justify-content: space-between;
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: var(--bg-primary);
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '🍔🍕🍟🍣🌯🥗☕🧀';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-size: 1.5rem;
+            opacity: 0.1;
+            animation: marquee 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .clear-btn {
+            background: none;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .clear-btn:hover { background: #ff4444; color: white; }
+
+        .auth-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .auth-btn:hover { background: var(--accent); color: white; }
+        .auth-btn.logged-in { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .auth-form { display: flex; flex-direction: column; gap: 12px; padding: 25px; }
+        .auth-form h2 { text-align: center; margin-bottom: 10px; font-size: 1.4rem; }
+        .auth-form .switch { text-align: center; margin-top: 15px; color: var(--text-secondary); font-size: 0.9rem; }
+        .auth-form .switch a { color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: none; }
+        .auth-form .switch a:hover { text-decoration: underline; }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 25px;
+            border-bottom: 1px solid var(--border);
+        }
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .profile-name { font-size: 1.3rem; font-weight: 700; }
+        .profile-role { color: var(--text-secondary); font-size: 0.85rem; }
+        .profile-body { padding: 25px; }
+        .profile-body h3 { margin-bottom: 15px; font-size: 1.1rem; }
+
+        .order-card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .order-date { font-size: 0.8rem; color: var(--text-secondary); }
+        .order-status { font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 10px; background: #27ae60; color: white; }
+        .order-items { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .order-total { font-weight: 700; color: var(--accent); }
+
+        .no-orders { text-align: center; padding: 30px; color: var(--text-secondary); }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        .logout-btn:hover { background: #ff4444; color: white; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">БИГ FOOD</div>
+        <div class="header-actions">
+            <button class="theme-btn" onclick="toggleTheme()">Тёмная тема</button>
+            <button class="auth-btn" id="authBtn" onclick="openAuth()">Войти</button>
+            <button class="cart-btn" onclick="openCart()">
+                Корзина
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="section-title">Наше Меню</h2>
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Найти блюдо..." oninput="onSearch()">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+        </div>
+        <div class="categories" id="categories"></div>
+        <div class="menu-grid" id="menuGrid"></div>
+    </main>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content" id="detailContent"></div>
+    </div>
+
+    <div class="modal" id="cartModal">
+        <div class="modal-content" id="cartModalContent"></div>
+    </div>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content" id="authModalContent"></div>
+    </div>
+
+    <div class="modal" id="profileModal">
+        <div class="modal-content" id="profileModalContent"></div>
+    </div>
+
+    <footer>
+        <p>© 2026 БИГ FOOD — Вкусная еда для каждого</p>
+        <button class="clear-btn" onclick="clearReviews()">Очистить все отзывы</button>
+    </footer>
+
+    <script>
+        const menu = [
+            { id: 1, name: "Бургер Классик", desc: "Сочная говяжья котлета из мраморной говядины, свежие помидоры и листья салата, хрустящий лук, фирменный соус на секретном рецепте. Подается в бриоше с кунжутом.", price: 350, emoji: "🍔", cuisine: "Американская", category: "Бургеры", prepTime: 12, badge: { text: "🔥 Хит продаж", class: "badge-hit" } },
+            { id: 2, name: "Пицца Маргарита", desc: "Классическая итальянская пицца на тонком тесте с томатным соусом, моцареллой ди Буффало и свежим базиликом. Выпекается в дровяной печи при 400°C.", price: 590, emoji: "🍕", cuisine: "Итальянская", category: "Пицца", prepTime: 18, badge: { text: "👨‍🍳 Выбор шефа", class: "badge-chef" } },
+            { id: 3, name: "Хрустящие наггетсы", desc: "Золотистые куриные наггетсы в хрустящей панировке из двух видов муки. Подаются с двумя соусами: чесночным и сладко-острым.", price: 280, emoji: "🍗", cuisine: "Американская", category: "Закуски", prepTime: 10, badge: { text: "😋 Вкуснятина", class: "badge-hit" } },
+            { id: 4, name: "Картофель Фри", desc: "Хрустящий картофель фри из отборного картофеля, обжаренный дважды для идеальной хрустящей корочки. Посыпан пикантными специями.", price: 180, emoji: "🍟", cuisine: "Американская", category: "Закуски", prepTime: 7, badge: { text: "⭐ Мега порция", class: "badge-new" } },
+            { id: 5, name: "Ролл Лосось", desc: "Авторский ролл со свежим лососем, спелым авокадо, огурцом и спайси соусом. Обёрнут премиальным японским рисом и нори.", price: 420, emoji: "🍣", cuisine: "Японская", category: "Роллы", prepTime: 15, badge: { text: "🆕 Новинка", class: "badge-new" } },
+            { id: 6, name: "Кофе Латте", desc: "Ароматный кофе из зёрен арабики с нежной молочной пенкой. Идеальный баланс espresso и тёплого молока в большой чашке.", price: 220, emoji: "☕", cuisine: "Итальянская", category: "Напитки", prepTime: 5, badge: { text: "☕ Утреннее настроение", class: "badge-chef" } },
+            { id: 7, name: "Шаурма", desc: "Острая шаурма с маринованной курицей-гриль, свежими овощами, хрустящим картофелем и тремя видами соуса в тонком лаваше.", price: 320, emoji: "🌯", cuisine: "Восточная", category: "Горячее", prepTime: 8, badge: { text: "🌶️ Острое!", class: "badge-spicy" } },
+            { id: 8, name: "Салат Цезарь", desc: "Хрустящие листья романо, нежная курица гриль, крутоны из багета, пармезан и классический соус Цезарь на основе анчоусов.", price: 380, emoji: "🥗", cuisine: "Американская", category: "Салаты", prepTime: 6, badge: { text: "🌿 Легко и вкусно", class: "badge-veg" } },
+            { id: 9, name: "Чизбургер", desc: "Двойная говяжья котлета с тающим чеддером, маринованными огурцами, горчицей и кетчупом. Классика американского вкуса.", price: 420, emoji: "🧀", cuisine: "Американская", category: "Бургеры", prepTime: 14, badge: { text: "🧀 Сырная бомба", class: "badge-hot" } },
+            { id: 10, name: "Пицца Пепперони", desc: "Пикантная пицца с острой итальянской пепперони, моцареллой и томатным соусом. Хрустящая корочка и тягучий сыр.", price: 650, emoji: "🍕", cuisine: "Итальянская", category: "Пицца", prepTime: 18, badge: { text: "🌶️ Огненная", class: "badge-spicy" } },
+            { id: 11, name: "Моно Ролл Унаги", desc: "Нежный угорь-гриль на подушке из риса с авокадо, огурцом и терияки соусом. Украшен кунжутом и зелёным луком.", price: 480, emoji: "🐉", cuisine: "Японская", category: "Роллы", prepTime: 15, badge: { text: "🐉 Деликатес", class: "badge-chef" } },
+            { id: 12, name: "Кока-Кола", desc: "Классический освежающий напиток со вкусом ванили. Идеально дополняет любой заказ.", price: 150, emoji: "🥤", cuisine: "Международная", category: "Напитки", prepTime: 1, badge: { text: "🥤 Холодная!", class: "badge-new" } },
+            { id: 13, name: "Картофель по-деревенски", desc: "Толстые дольки картофеля, запечённые с чесноком, розмарином и оливковым маслом. Хрустящие снаружи, мягкие внутри.", price: 220, emoji: "🥔", cuisine: "Европейская", category: "Закуски", prepTime: 15, badge: { text: "🥔 Домашнее", class: "badge-veg" } },
+            { id: 14, name: "Том Ям с креветками", desc: "Острый тайский суп с креветками, грибами, помидорами и кокосовым молоком. Взрыв вкусов и ароматов.", price: 450, emoji: "🍜", cuisine: "Тайская", category: "Горячее", prepTime: 12, badge: { text: "🔥 Огненный суп", class: "badge-hot" } }
+        ];
+
+        const promos = {
+            "BIGFOOD10": { type: "percent", value: 10, label: "Скидка 10%" },
+            "BIGFOOD20": { type: "percent", value: 20, label: "Скидка 20%" },
+            "BIGFOOD50": { type: "fixed", value: 50, label: "Скидка 50 ₽" },
+            "FREEDELIVERY": { type: "delivery", value: 0, label: "Бесплатная доставка" }
+        };
+
+        let cart = JSON.parse(localStorage.getItem('bigfood_cart')) || [];
+        let isDarkTheme = localStorage.getItem('bigfood_theme') === 'dark';
+        let reviews = JSON.parse(localStorage.getItem('bigfood_reviews')) || {};
+        let ratings = JSON.parse(localStorage.getItem('bigfood_ratings')) || {};
+        let activeCategory = "Все";
+        let appliedPromo = null;
+        let searchQuery = "";
+        let currentUser = JSON.parse(localStorage.getItem('bigfood_user')) || null;
+        let users = JSON.parse(localStorage.getItem('bigfood_users')) || [
+            { name: "Админ", login: "admin", password: "671290", role: "admin", orders: [] }
+        ];
+        let allOrders = JSON.parse(localStorage.getItem('bigfood_orders')) || [];
+
+        function saveCart() { localStorage.setItem('bigfood_cart', JSON.stringify(cart)); }
+        function saveTheme() { localStorage.setItem('bigfood_theme', isDarkTheme ? 'dark' : 'light'); }
+        function saveReviews() { localStorage.setItem('bigfood_reviews', JSON.stringify(reviews)); }
+        function saveRatings() { localStorage.setItem('bigfood_ratings', JSON.stringify(ratings)); }
+        function saveUsers() { localStorage.setItem('bigfood_users', JSON.stringify(users)); }
+        function saveOrders() { localStorage.setItem('bigfood_orders', JSON.stringify(allOrders)); }
+        function saveCurrentUser() { localStorage.setItem('bigfood_user', JSON.stringify(currentUser)); }
+
+        function onSearch() {
+            searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            document.getElementById('searchClear').style.display = searchQuery ? 'block' : 'none';
+            renderMenu();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            document.getElementById('searchClear').style.display = 'none';
+            renderMenu();
+        }
+
+        function getAvgRating(id) {
+            const r = reviews[id] || [];
+            if (r.length === 0) return 0;
+            return r.reduce((s, v) => s + v.stars, 0) / r.length;
+        }
+
+        function getRatingHTML(id) {
+            const avg = getAvgRating(id);
+            const count = (reviews[id] || []).length;
+            if (count === 0) return '';
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<span style="color:${i <= Math.round(avg) ? '#ffc107' : '#ccc'}">★</span>`;
+            }
+            return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:0.85rem">
+                <span>${stars}</span>
+                <span style="color:var(--text-secondary)">${avg.toFixed(1)} (${count})</span>
+            </div>`;
+        }
+
+        function getCategories() {
+            return ["Все", ...new Set(menu.map(i => i.category))];
+        }
+
+        function renderCategories() {
+            document.getElementById('categories').innerHTML = getCategories().map(cat =>
+                `<button class="cat-btn ${cat === activeCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`
+            ).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategories();
+            renderMenu();
+        }
+
+        function updateAuthBtn() {
+            const btn = document.getElementById('authBtn');
+            if (currentUser) {
+                btn.textContent = currentUser.name;
+                btn.classList.add('logged-in');
+                btn.onclick = openProfile;
+            } else {
+                btn.textContent = 'Войти';
+                btn.classList.remove('logged-in');
+                btn.onclick = openAuth;
+            }
+        }
+
+        function openAuth() {
+            if (currentUser) { openProfile(); return; }
+            renderAuthForm('login');
+            document.getElementById('authModal').classList.add('active');
+        }
+
+        function closeAuth() {
+            document.getElementById('authModal').classList.remove('active');
+        }
+
+        function openProfile() {
+            if (!currentUser) { openAuth(); return; }
+            renderProfile();
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function renderAuthForm(mode) {
+            const isLogin = mode === 'login';
+            document.getElementById('authModalContent').innerHTML = `
+                <button class="modal-close" onclick="closeAuth()">×</button>
+                <div class="auth-form">
+                    <h2>${isLogin ? 'Вход' : 'Регистрация'}</h2>
+                    ${!isLogin ? '<div class="form-group"><label>Имя</label><input type="text" id="authName" placeholder="Ваше имя"></div>' : ''}
+                    <div class="form-group"><label>Логин</label><input type="text" id="authLogin" placeholder="Введите логин"></div>
+                    <div class="form-group"><label>Пароль</label><input type="password" id="authPassword" placeholder="Введите пароль" onkeypress="if(event.key===\'Enter\')doAuth(\'' + mode + '\')"></div>
+                    <button class="checkout-btn" onclick="doAuth('${mode}')">${isLogin ? 'Войти' : 'Зарегистрироваться'}</button>
+                    <div class="switch">
+                        ${isLogin ? 'Нет аккаунта? <a onclick="renderAuthForm(\'register\')">Зарегистрироваться</a>' : 'Уже есть аккаунт? <a onclick="renderAuthForm(\'login\')">Войти</a>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function doAuth(mode) {
+            const login = document.getElementById('authLogin').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            if (mode === 'login') {
+                const user = users.find(u => u.login === login && u.password === password);
+                if (!user) return alert('Неверный логин или пароль!');
+                currentUser = user;
+                saveCurrentUser();
+                closeAuth();
+                updateAuthBtn();
+                alert('Добро пожаловать, ' + user.name + '!');
+            } else {
+                const name = document.getElementById('authName').value.trim();
+                if (!name) return alert('Введите имя!');
+                if (!login) return alert('Введите логин!');
+                if (!password) return alert('Введите пароль!');
+                if (users.find(u => u.login === login)) return alert('Такой логин уже существует!');
+                const newUser = { name, login, password, role: "user", orders: [] };
+                users.push(newUser);
+                saveUsers();
+                currentUser = newUser;
+                saveCurrentUser();
+                closeAuth();
+                updateAuthBtn();
+                alert('Регистрация успешна! Добро пожаловать, ' + name + '!');
+            }
+        }
+
+        function logout() {
+            if (!confirm('Выйти из аккаунта?')) return;
+            currentUser = null;
+            saveCurrentUser();
+            closeProfile();
+            updateAuthBtn();
+        }
+
+        function renderProfile() {
+            const isAdmin = currentUser.role === 'admin';
+            const userOrders = isAdmin ? allOrders : allOrders.filter(o => o.userLogin === currentUser.login);
+
+            let ordersHTML = '';
+            if (userOrders.length === 0) {
+                ordersHTML = '<div class="no-orders">Пока нет заказов</div>';
+            } else {
+                userOrders.slice().reverse().forEach(order => {
+                    const items = order.items.map(i => `${i.emoji} ${i.name} x${i.qty}`).join(', ');
+                    const statusColors = {
+                        'Новый': '#3498db',
+                        'Готовится': '#f39c12',
+                        'Готов к выдаче': '#27ae60',
+                        'Доставляется': '#9b59b6',
+                        'Выдан': '#2ecc71',
+                        'Отменён': '#e74c3c'
+                    };
+                    const statusColor = statusColors[order.status] || '#3498db';
+
+                    let adminActions = '';
+                    if (isAdmin) {
+                        const nextStatuses = {
+                            'Новый': ['Готовится', 'Отменён'],
+                            'Готовится': ['Готов к выдаче', 'Отменён'],
+                            'Готов к выдаче': ['Доставляется', 'Выдан'],
+                            'Доставляется': ['Выдан'],
+                            'Выдан': [],
+                            'Отменён': []
+                        };
+                        const nexts = nextStatuses[order.status] || [];
+                        adminActions = `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                            ${nexts.map(s => `<button onclick="changeOrderStatus(${order.id},'${s}')" style="background:${statusColors[s]};color:white;border:none;padding:6px 14px;border-radius:15px;cursor:pointer;font-weight:600;font-size:0.8rem;transition:all 0.3s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">${s}</button>`).join('')}
+                        </div>`;
+                    }
+
+                    ordersHTML += `<div class="order-card">
+                        <div class="order-header">
+                            <span class="order-date">${order.date}</span>
+                            <span class="order-status" style="background:${statusColor}">${order.status || 'Новый'}</span>
+                        </div>
+                        <div class="order-items">${items}</div>
+                        <div class="order-total">${order.total} ₽ — ${order.customer}${order.promo ? ' (промокод: ' + order.promo + ')' : ''}</div>
+                        ${isAdmin ? '<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px">Тел: ' + order.phone + ' | Адрес: ' + order.address + ', кв.' + order.apartment + ', под.' + order.entrance + ', эт.' + order.floor + '</div>' : ''}
+                        ${adminActions}
+                    </div>`;
+                });
+            }
+
+            document.getElementById('profileModalContent').innerHTML = `
+                <button class="modal-close" onclick="closeProfile()">×</button>
+                <div class="profile-header">
+                    <div class="profile-avatar">${currentUser.name[0]}</div>
+                    <div>
+                        <div class="profile-name">${currentUser.name}</div>
+                        <div class="profile-role">${isAdmin ? 'Администратор' : 'Пользователь'}</div>
+                    </div>
+                </div>
+                <div class="profile-body">
+                    <h3>${isAdmin ? 'Все заказы (' + allOrders.length + ')' : 'Мои заказы (' + userOrders.length + ')'}</h3>
+                    ${ordersHTML}
+                    <button class="logout-btn" onclick="logout()">Выйти</button>
+                </div>
+            `;
+        }
+
+        function changeOrderStatus(orderId, newStatus) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+            order.status = newStatus;
+            saveOrders();
+            renderProfile();
+
+            if (newStatus === 'Готовится') {
+                showNotification('Заказ #' + orderId + ' принят! Готовим ваш заказ 🍳');
+            } else if (newStatus === 'Готов к выдаче') {
+                showNotification('Заказ #' + orderId + ' готов! Можно забирать ✅');
+            } else if (newStatus === 'Доставляется') {
+                showNotification('Заказ #' + orderId + ' в пути! Скоро будет у вас 🚗');
+            } else if (newStatus === 'Выдан') {
+                showNotification('Заказ #' + orderId + ' выдан. Приятного аппетита! 🎉');
+            } else if (newStatus === 'Отменён') {
+                showNotification('Заказ #' + orderId + ' отменён ❌');
+            }
+        }
+
+        function showNotification(text) {
+            const notif = document.createElement('div');
+            notif.style.cssText = 'position:fixed;top:20px;right:20px;background:var(--card-bg);color:var(--text-primary);padding:15px 25px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.2);z-index:9999;font-weight:600;max-width:350px;animation:slideInRight 0.4s ease;border-left:4px solid var(--accent)';
+            notif.textContent = text;
+            document.body.appendChild(notif);
+            setTimeout(() => { notif.style.opacity = '0'; notif.style.transition = 'opacity 0.5s'; }, 3000);
+            setTimeout(() => notif.remove(), 3500);
+        }
+
+        function renderMenu() {
+            let filtered = activeCategory === "Все" ? menu : menu.filter(i => i.category === activeCategory);
+            if (searchQuery) {
+                filtered = filtered.filter(i =>
+                    i.name.toLowerCase().includes(searchQuery) ||
+                    i.desc.toLowerCase().includes(searchQuery) ||
+                    i.cuisine.toLowerCase().includes(searchQuery) ||
+                    i.category.toLowerCase().includes(searchQuery)
+                );
+            }
+            const grid = document.getElementById('menuGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-secondary);font-size:1.1rem">Ничего не найдено 🔍</div>';
+                return;
+            }
+            grid.innerHTML = filtered.map(item => `
+                <div class="food-card" onclick="openDetail(${item.id})">
+                    <div class="food-img">
+                        <span class="emoji-badge">${item.emoji}</span>
+                    </div>
+                    <div class="food-info">
+                        <div class="food-name">${item.name}${item.badge ? `<span class="food-badge ${item.badge.class}">${item.badge.text}</span>` : ''}</div>
+                        <div class="food-cuisine">${item.cuisine}</div>
+                        <div class="food-desc">${item.desc.substring(0, 60)}...</div>
+                        ${getRatingHTML(item.id)}
+                        <div class="food-bottom">
+                            <span class="food-price">${item.price} ₽</span>
+                            <button class="add-btn" onclick="event.stopPropagation(); addToCart(${item.id})">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearReviews() {
+            const pass = prompt('Введите пароль:');
+            if (pass !== '671290') return alert('Неверный пароль!');
+            if (!confirm('Удалить все отзывы и рейтинги?')) return;
+            reviews = {};
+            ratings = {};
+            saveReviews();
+            saveRatings();
+            renderMenu();
+        }
+
+        function openDetail(id) {
+            const item = menu.find(i => i.id === id);
+            const list = reviews[id] || [];
+            const avg = getAvgRating(id);
+            const count = list.length;
+            const formStars = (reviews['_form'] && reviews['_form'][id]) || 0;
+
+            let starsInput = '';
+            for (let i = 1; i <= 5; i++) {
+                starsInput += `<span class="star" onclick="setDetailStar(${id},${i})" style="color:${i <= formStars ? '#ffc107' : '#ccc'}">★</span>`;
+            }
+
+            let reviewsHTML = '';
+            if (count === 0) {
+                reviewsHTML = '<div class="no-reviews">Пока нет отзывов</div>';
+            } else {
+                list.forEach(r => {
+                    reviewsHTML += `<div class="review-item">
+                        <div class="review-header">
+                            <span class="review-author">${r.name}</span>
+                            <span class="review-stars-display">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
+                        </div>
+                        <div class="review-text">${r.text}</div>
+                    </div>`;
+                });
+            }
+
+            document.getElementById('detailContent').innerHTML = `
+                <button class="modal-close" onclick="closeDetail()">×</button>
+                <div class="detail-img">
+                    <span class="emoji-badge-lg">${item.emoji}</span>
+                </div>
+                <div class="detail-body">
+                    <div class="detail-name">${item.name} ${item.badge ? `<span class="food-badge ${item.badge.class}" style="font-size:0.9rem">${item.badge.text}</span>` : ''}</div>
+                    <div class="food-cuisine" style="margin-bottom:4px">${item.cuisine}</div>
+                    <div style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:12px">Категория: ${item.category} · Готовка: ${item.prepTime} мин</div>
+                    <div class="detail-desc">${item.desc}</div>
+                    <div class="detail-price">${item.price} ₽</div>
+                    <button class="detail-add-btn" onclick="addToCart(${item.id})">Добавить в корзину</button>
+
+                    <div class="detail-section-title">Рейтинг</div>
+                    <div class="detail-rating">
+                        <div class="detail-stars" id="detailStars-${id}">${starsInput}</div>
+                        <span style="font-size:0.95rem;color:var(--text-secondary)">${avg > 0 ? avg.toFixed(1) : '—'} (${count})</span>
+                    </div>
+
+                    <div class="detail-section-title">Отзывы</div>
+                    ${reviewsHTML}
+
+                    <div class="add-review-form">
+                        <input type="text" id="reviewName-${id}" placeholder="Ваше имя">
+                        <textarea id="reviewText-${id}" rows="3" placeholder="Напишите отзыв..."></textarea>
+                        <button class="submit-review-btn" onclick="submitReview(${id})">Отправить отзыв</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function setDetailStar(id, star) {
+            if (!reviews['_form']) reviews['_form'] = {};
+            reviews['_form'][id] = star;
+            const container = document.getElementById('detailStars-' + id);
+            if (container) {
+                container.querySelectorAll('.star').forEach((s, i) => {
+                    s.style.color = i < star ? '#ffc107' : '#ccc';
+                });
+            }
+        }
+
+        function submitReview(id) {
+            const name = document.getElementById('reviewName-' + id).value.trim();
+            const text = document.getElementById('reviewText-' + id).value.trim();
+            const stars = (reviews['_form'] && reviews['_form'][id]) || 3;
+            if (!name || !text) return alert('Заполните имя и отзыв');
+            if (!reviews[id]) reviews[id] = [];
+            reviews[id].push({ name, text, stars });
+            ratings[id] = stars;
+            delete reviews['_form'][id];
+            saveReviews();
+            saveRatings();
+            renderMenu();
+            openDetail(id);
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        function addToCart(id) {
+            const item = menu.find(i => i.id === id);
+            const existing = cart.find(i => i.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...item, qty: 1 });
+            }
+            updateCartCount();
+            saveCart();
+            const cartBtn = document.querySelector('.cart-btn');
+            cartBtn.classList.remove('bounce');
+            void cartBtn.offsetWidth;
+            cartBtn.classList.add('bounce');
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCartCount();
+            saveCart();
+            renderCartModal();
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    removeFromCart(id);
+                } else {
+                    saveCart();
+                    renderCartModal();
+                }
+            }
+        }
+
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+        }
+
+        function applyPromo() {
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            const msgEl = document.getElementById('promoMsg');
+            if (promos[code]) {
+                appliedPromo = { code, ...promos[code] };
+                msgEl.className = 'promo-msg ok';
+                msgEl.textContent = '✓ ' + promos[code].label;
+            } else {
+                appliedPromo = null;
+                msgEl.className = 'promo-msg err';
+                msgEl.textContent = 'Промокод не найден';
+            }
+            renderCartModal();
+        }
+
+        function getDiscount(subtotal) {
+            if (!appliedPromo) return 0;
+            if (appliedPromo.type === 'percent') return Math.round(subtotal * appliedPromo.value / 100);
+            if (appliedPromo.type === 'fixed') return Math.min(appliedPromo.value, subtotal);
+            return 0;
+        }
+
+        function renderCartModal() {
+            const container = document.getElementById('cartModalContent');
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            const discount = getDiscount(subtotal);
+            const total = subtotal - discount;
+
+            let html = `<div style="padding:25px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <span style="font-size:1.5rem;font-weight:700">Корзина</span>
+                    <button class="modal-close" style="position:static" onclick="closeCart()">×</button>
+                </div>`;
+
+            if (cart.length === 0) {
+                html += '<div class="empty-cart">Корзина пуста</div>';
+            } else {
+                html += '<div class="cart-items">';
+                cart.forEach(item => {
+                    html += `<div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.emoji} ${item.name}</div>
+                            <div class="cart-item-price">${item.price * item.qty} ₽</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+                            <span style="font-weight:600;min-width:20px;text-align:center">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+
+                if (discount > 0) {
+                    html += `<div class="discount-line"><span>Промокод (${appliedPromo.code})</span><span>-${discount} ₽</span></div>`;
+                }
+                html += `<div class="cart-total"><span>Итого:</span><span>${total} ₽</span></div>`;
+
+                html += `<div class="checkout-form">
+                    <div class="form-group">
+                        <label>Промокод</label>
+                        <div class="promo-row">
+                            <input type="text" id="promoInput" placeholder="Введите промокод" value="${appliedPromo ? appliedPromo.code : ''}" onkeypress="if(event.key==='Enter')applyPromo()">
+                            <button class="promo-apply-btn" onclick="applyPromo()">Применить</button>
+                        </div>
+                        <div id="promoMsg" class="promo-msg">${appliedPromo ? '✓ ' + appliedPromo.label : ''}</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Имя</label><input type="text" id="fname" placeholder="Иван"></div>
+                        <div class="form-group"><label>Фамилия</label><input type="text" id="lname" placeholder="Иванов"></div>
+                    </div>
+                    <div class="form-group"><label>Телефон</label><input type="tel" id="phone" placeholder="+7 (999) 123-45-67"></div>
+                    <div class="form-group"><label>Адрес</label><input type="text" id="address" placeholder="ул. Примерная, д. 1"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Квартира</label><input type="text" id="apartment" placeholder="42"></div>
+                        <div class="form-group"><label>Подъезд</label><input type="text" id="entrance" placeholder="3"></div>
+                    </div>
+                    <div class="form-group"><label>Этаж</label><input type="text" id="floor" placeholder="5"></div>
+                    <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+                </div>`;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function openCart() {
+            renderCartModal();
+            document.getElementById('cartModal').classList.add('active');
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.documentElement.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
+            document.querySelector('.theme-btn').textContent = isDarkTheme ? 'Светлая тема' : 'Тёмная тема';
+            saveTheme();
+        }
+
+        function checkout() {
+            const fname = document.getElementById('fname').value.trim();
+            const lname = document.getElementById('lname').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const apartment = document.getElementById('apartment').value.trim();
+            const entrance = document.getElementById('entrance').value.trim();
+            const floor = document.getElementById('floor').value.trim();
+
+            if (!fname || !lname || !phone || !address || !apartment || !entrance || !floor) {
+                return alert('Заполните все поля!');
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            const discount = getDiscount(subtotal);
+            const total = subtotal - discount;
+            const orderItems = cart.map(item => `${item.emoji} ${item.name} x${item.qty} — ${item.price * item.qty} ₽`).join('\n');
+
+            const dishTimes = cart.map(item => ({
+                name: item.name, emoji: item.emoji, qty: item.qty,
+                time: (item.prepTime || 10) * item.qty
+            }));
+            const maxPrep = Math.max(...dishTimes.map(d => d.time));
+            const deliveryTime = maxPrep + 15;
+
+            const now = new Date();
+            const readyDate = new Date(now.getTime() + maxPrep * 60000);
+            const deliveryDate = new Date(now.getTime() + deliveryTime * 60000);
+            const formatTime = (d) => d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+
+            let dishTimesHTML = dishTimes.map(d =>
+                `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+                    <span>${d.emoji} ${d.name} x${d.qty}</span>
+                    <span style="font-weight:600">${d.time} мин</span>
+                </div>`
+            ).join('');
+
+            let discountHTML = discount > 0 ?
+                `<div class="discount-line"><span>Промокод (${appliedPromo.code})</span><span>-${discount} ₽</span></div>` : '';
+
+            document.getElementById('cartModalContent').innerHTML = `<div style="padding:30px">
+                <div class="order-success">
+                    <div class="icon">✅</div>
+                    <h3>Заказ оформлен!</h3>
+                    <p><strong>${fname} ${lname}</strong></p>
+                    <p>Телефон: ${phone}</p>
+                    <p>Адрес: ${address}, кв. ${apartment}, под. ${entrance}, эт. ${floor}</p>
+                    <hr style="margin:15px 0;border-color:var(--border)">
+                    <p style="text-align:left;white-space:pre-line">${orderItems}</p>
+                    ${discountHTML}
+                    <hr style="margin:15px 0;border-color:var(--border)">
+                    <p style="font-weight:700">Время готовки по блюдам:</p>
+                    <div style="text-align:left;margin:10px 0">${dishTimesHTML}</div>
+                    <div style="background:var(--bg-secondary);border-radius:12px;padding:15px;margin-top:10px;text-align:left">
+                        <p>Готовка: <strong>${maxPrep} мин</strong> (к ${formatTime(readyDate)})</p>
+                        <p>Доставка: <strong>${deliveryTime} мин</strong> (к ${formatTime(deliveryDate)})</p>
+                    </div>
+                    <hr style="margin:15px 0;border-color:var(--border)">
+                    <p><strong>Итого: ${total} ₽</strong></p>
+                    <p style="margin-top:15px;color:var(--accent)">Спасибо за заказ!</p>
+                </div>
+            </div>`;
+
+            const order = {
+                id: Date.now(),
+                date: new Date().toLocaleString('ru-RU'),
+                customer: fname + ' ' + lname,
+                phone, address, apartment, entrance, floor,
+                items: cart.map(i => ({ emoji: i.emoji, name: i.name, qty: i.qty, price: i.price })),
+                total,
+                discount,
+                promo: appliedPromo ? appliedPromo.code : null,
+                status: 'Готовится',
+                userLogin: currentUser ? currentUser.login : 'guest'
+            };
+            allOrders.push(order);
+            saveOrders();
+
+            if (currentUser && currentUser.role === 'admin') {
+                showNotification('Новый заказ #' + order.id + ' от ' + fname + ' ' + lname + '!');
+            } else {
+                showNotification('Заказ #' + order.id + ' принят! Ожидайте подтверждения 📋');
+            }
+
+            cart = [];
+            appliedPromo = null;
+            updateCartCount();
+            saveCart();
+        }
+
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') closeDetail();
+        });
+        document.getElementById('cartModal').addEventListener('click', (e) => {
+            if (e.target.id === 'cartModal') closeCart();
+        });
+        document.getElementById('authModal').addEventListener('click', (e) => {
+            if (e.target.id === 'authModal') closeAuth();
+        });
+        document.getElementById('profileModal').addEventListener('click', (e) => {
+            if (e.target.id === 'profileModal') closeProfile();
+        });
+
+        if (isDarkTheme) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.querySelector('.theme-btn').textContent = 'Светлая тема';
+        }
+        updateCartCount();
+        updateAuthBtn();
+        renderCategories();
+        renderMenu();
+    </script>
+</body>
+</html>
