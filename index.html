@@ -1325,6 +1325,22 @@
             saveCart();
         }
 
+        function openCart() {
+            renderCartModal();
+            document.getElementById('cartModal').classList.add('active');
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.documentElement.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
+            document.querySelector('.theme-btn').textContent = isDarkTheme ? 'Светлая тема' : 'Тёмная тема';
+            saveTheme();
+        }
+
         document.getElementById('detailModal').addEventListener('click', (e) => {
             if (e.target.id === 'detailModal') closeDetail();
         });
