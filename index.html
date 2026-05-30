@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>БИГ FOOD</title>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -730,6 +732,25 @@
     </footer>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4ygo3H4NXSlWSY7RaH7sSqxsGsNl4rY",
+            authDomain: "food-fa2df.firebaseapp.com",
+            databaseURL: "https://food-fa2df-default-rtdb.firebaseio.com",
+            projectId: "food-fa2df",
+            storageBucket: "food-fa2df.firebasestorage.app",
+            messagingSenderId: "533655802351",
+            appId: "1:533655802351:web:98872302e565d884d1e61a"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function fbSave(path, data) {
+            db.ref(path).set(data);
+        }
+        function fbLoad(path, cb) {
+            db.ref(path).once('value', snap => cb(snap.val()));
+        }
+
         const menu = [
             { id: 1, name: "Бургер Классик", desc: "Сочная говяжья котлета из мраморной говядины, свежие помидоры и листья салата, хрустящий лук, фирменный соус на секретном рецепте. Подается в бриоше с кунжутом.", price: 350, emoji: "🍔", cuisine: "Американская", category: "Бургеры", prepTime: 12, badge: { text: "🔥 Хит продаж", class: "badge-hit" } },
             { id: 2, name: "Пицца Маргарита", desc: "Классическая итальянская пицца на тонком тесте с томатным соусом, моцареллой ди Буффало и свежим базиликом. Выпекается в дровяной печи при 400°C.", price: 590, emoji: "🍕", cuisine: "Итальянская", category: "Пицца", prepTime: 18, badge: { text: "👨‍🍳 Выбор шефа", class: "badge-chef" } },
@@ -770,10 +791,22 @@
 
         function saveCart() { localStorage.setItem('bigfood_cart', JSON.stringify(cart)); }
         function saveTheme() { localStorage.setItem('bigfood_theme', isDarkTheme ? 'dark' : 'light'); }
-        function saveReviews() { localStorage.setItem('bigfood_reviews', JSON.stringify(reviews)); }
-        function saveRatings() { localStorage.setItem('bigfood_ratings', JSON.stringify(ratings)); }
-        function saveUsers() { localStorage.setItem('bigfood_users', JSON.stringify(users)); }
-        function saveOrders() { localStorage.setItem('bigfood_orders', JSON.stringify(allOrders)); }
+        function saveReviews() {
+            localStorage.setItem('bigfood_reviews', JSON.stringify(reviews));
+            fbSave('bigfood/reviews', reviews);
+        }
+        function saveRatings() {
+            localStorage.setItem('bigfood_ratings', JSON.stringify(ratings));
+            fbSave('bigfood/ratings', ratings);
+        }
+        function saveUsers() {
+            localStorage.setItem('bigfood_users', JSON.stringify(users));
+            fbSave('bigfood/users', users);
+        }
+        function saveOrders() {
+            localStorage.setItem('bigfood_orders', JSON.stringify(allOrders));
+            fbSave('bigfood/orders', allOrders);
+        }
         function saveCurrentUser() { localStorage.setItem('bigfood_user', JSON.stringify(currentUser)); }
 
         function onSearch() {
@@ -1451,6 +1484,12 @@
             document.documentElement.setAttribute('data-theme', 'dark');
             document.querySelector('.theme-btn').textContent = 'Светлая тема';
         }
+
+        fbLoad('bigfood/orders', data => { if (data) { allOrders = data; saveOrders(); renderProfile(); } });
+        fbLoad('bigfood/users', data => { if (data) { users = data; saveUsers(); } });
+        fbLoad('bigfood/reviews', data => { if (data) { reviews = data; saveReviews(); renderMenu(); } });
+        fbLoad('bigfood/ratings', data => { if (data) { ratings = data; saveRatings(); } });
+
         updateCartCount();
         updateAuthBtn();
         renderCategories();
