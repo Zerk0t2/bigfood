@@ -1237,6 +1237,110 @@
             const discount = getDiscount(subtotal);
             const pointsDiscount = getPointsDiscount(subtotal - discount);
             const total = subtotal - discount - pointsDiscount;
+
+            let html = `<div style="padding:25px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <span style="font-size:1.5rem;font-weight:700">Корзина</span>
+                    <button class="modal-close" style="position:static" onclick="closeCart()">×</button>
+                </div>`;
+
+            if (cart.length === 0) {
+                html += '<div class="empty-cart">Корзина пуста</div>';
+            } else {
+                html += '<div class="cart-items">';
+                cart.forEach(item => {
+                    html += `<div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.emoji} ${item.name}</div>
+                            <div class="cart-item-price">${item.price * item.qty} ₽</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+                            <span style="font-weight:600;min-width:20px;text-align:center">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+
+                if (discount > 0) {
+                    html += `<div class="discount-line"><span>Промокод (${appliedPromo.code})</span><span>-${discount} ₽</span></div>`;
+                }
+
+                if (currentUser && currentUser.role !== 'admin') {
+                    const userPts = currentUser ? (currentUser.points || 0) : 0;
+                    if (userPts > 0 && !appliedPromo) {
+                        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 15px;background:var(--bg-secondary);border-radius:10px;margin-bottom:10px">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                                <input type="checkbox" id="usePoints" ${usePointsFlag ? 'checked' : ''} onchange="togglePoints()"> Использовать баллы (${userPts})
+                            </label>
+                            <span style="color:var(--accent);font-weight:600">-${Math.min(userPts, subtotal)} ₽</span>
+                        </div>`;
+                    }
+                }
+
+                html += `<div class="cart-total"><span>Итого:</span><span>${total} ₽</span></div>`;
+
+                html += `<div class="checkout-form">
+                    <div class="form-group">
+                        <label>Промокод</label>
+                        <div class="promo-row">
+                            <input type="text" id="promoInput" placeholder="Введите промокод" value="${appliedPromo ? appliedPromo.code : ''}" onkeypress="if(event.key==='Enter')applyPromo()">
+                            <button class="promo-apply-btn" onclick="applyPromo()">Применить</button>
+                        </div>
+                        <div id="promoMsg" class="promo-msg">${appliedPromo ? '✓ ' + appliedPromo.label : ''}</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Имя</label><input type="text" id="fname" placeholder="Иван"></div>
+                        <div class="form-group"><label>Фамилия</label><input type="text" id="lname" placeholder="Иванов"></div>
+                    </div>
+                    <div class="form-group"><label>Телефон</label><input type="tel" id="phone" placeholder="+7 (999) 123-45-67"></div>
+                    <div class="form-group"><label>Адрес</label><input type="text" id="address" placeholder="ул. Примерная, д. 1"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Квартира</label><input type="text" id="apartment" placeholder="42"></div>
+                        <div class="form-group"><label>Подъезд</label><input type="text" id="entrance" placeholder="3"></div>
+                    </div>
+                    <div class="form-group"><label>Этаж</label><input type="text" id="floor" placeholder="5"></div>
+                    <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+                </div>`;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function openCart() {
+            renderCartModal();
+            document.getElementById('cartModal').classList.add('active');
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.documentElement.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
+            document.querySelector('.theme-btn').textContent = isDarkTheme ? 'Светлая тема' : 'Тёмная тема';
+            saveTheme();
+        }
+
+        function checkout() {
+            const fname = document.getElementById('fname').value.trim();
+            const lname = document.getElementById('lname').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const apartment = document.getElementById('apartment').value.trim();
+            const entrance = document.getElementById('entrance').value.trim();
+            const floor = document.getElementById('floor').value.trim();
+
+            if (!fname || !lname || !phone || !address || !apartment || !entrance || !floor) {
+                return alert('Заполните все поля!');
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            const discount = getDiscount(subtotal);
+            const pointsDiscount = getPointsDiscount(subtotal - discount);
+            const total = subtotal - discount - pointsDiscount;
             const orderItems = cart.map(item => `${item.emoji} ${item.name} x${item.qty} — ${item.price * item.qty} ₽`).join('\n');
 
             const dishTimes = cart.map(item => ({
@@ -1258,8 +1362,13 @@
                 </div>`
             ).join('');
 
-            let discountHTML = discount > 0 ?
-                `<div class="discount-line"><span>Промокод (${appliedPromo.code})</span><span>-${discount} ₽</span></div>` : '';
+            let discountHTML = '';
+            if (discount > 0) {
+                discountHTML = `<div class="discount-line"><span>Промокод (${appliedPromo.code})</span><span>-${discount} ₽</span></div>`;
+            }
+            if (pointsDiscount > 0) {
+                discountHTML += `<div class="discount-line"><span>Баллы</span><span>-${pointsDiscount} ₽</span></div>`;
+            }
 
             document.getElementById('cartModalContent').innerHTML = `<div style="padding:30px">
                 <div class="order-success">
@@ -1293,7 +1402,7 @@
                 total,
                 discount,
                 promo: appliedPromo ? appliedPromo.code : null,
-                status: 'Готовится',
+                status: 'Новый',
                 userLogin: currentUser ? currentUser.login : 'guest'
             };
             allOrders.push(order);
@@ -1323,22 +1432,6 @@
             appliedPromo = null;
             updateCartCount();
             saveCart();
-        }
-
-        function openCart() {
-            renderCartModal();
-            document.getElementById('cartModal').classList.add('active');
-        }
-
-        function closeCart() {
-            document.getElementById('cartModal').classList.remove('active');
-        }
-
-        function toggleTheme() {
-            isDarkTheme = !isDarkTheme;
-            document.documentElement.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
-            document.querySelector('.theme-btn').textContent = isDarkTheme ? 'Светлая тема' : 'Тёмная тема';
-            saveTheme();
         }
 
         document.getElementById('detailModal').addEventListener('click', (e) => {
