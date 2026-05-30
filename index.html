@@ -947,22 +947,23 @@
 
         function renderProfile() {
             const isAdmin = currentUser.role === 'admin';
-            const userOrders = isAdmin ? allOrders : allOrders.filter(o => o.userLogin === currentUser.login);
+            const userOrders = isAdmin ? allOrders.slice().reverse() : allOrders.filter(o => o.userLogin === currentUser.login).reverse();
+
+            const statusColors = {
+                'Новый': '#3498db',
+                'Готовится': '#f39c12',
+                'Готов к выдаче': '#27ae60',
+                'Доставляется': '#9b59b6',
+                'Выдан': '#2ecc71',
+                'Отменён': '#e74c3c'
+            };
 
             let ordersHTML = '';
             if (userOrders.length === 0) {
                 ordersHTML = '<div class="no-orders">Пока нет заказов</div>';
             } else {
-                userOrders.slice().reverse().forEach(order => {
-                    const items = order.items.map(i => `${i.emoji} ${i.name} x${i.qty}`).join(', ');
-                    const statusColors = {
-                        'Новый': '#3498db',
-                        'Готовится': '#f39c12',
-                        'Готов к выдаче': '#27ae60',
-                        'Доставляется': '#9b59b6',
-                        'Выдан': '#2ecc71',
-                        'Отменён': '#e74c3c'
-                    };
+                userOrders.forEach(order => {
+                    const items = order.items.map(i => `${i.emoji} ${i.name} ×${i.qty}`).join(' · ');
                     const statusColor = statusColors[order.status] || '#3498db';
 
                     let adminActions = '';
@@ -976,28 +977,66 @@
                             'Отменён': []
                         };
                         const nexts = nextStatuses[order.status] || [];
-                        adminActions = `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-                            ${nexts.map(s => `<button onclick="changeOrderStatus(${order.id},'${s}')" style="background:${statusColors[s]};color:white;border:none;padding:6px 14px;border-radius:15px;cursor:pointer;font-weight:600;font-size:0.8rem;transition:all 0.3s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">${s}</button>`).join('')}
-                        </div>`;
+                        if (nexts.length > 0) {
+                            adminActions = `<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+                                ${nexts.map(s => `<button onclick="changeOrderStatus(${order.id},'${s}')" style="background:${statusColors[s]};color:white;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-weight:600;font-size:0.8rem;transition:all 0.2s;box-shadow:0 2px 8px ${statusColors[s]}44" onmouseover="this.style.transform='scale(1.08)';this.style.boxShadow='0 4px 15px ${statusColors[s]}66'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 2px 8px ${statusColors[s]}44'">${s}</button>`).join('')}
+                            </div>`;
+                        }
                     }
 
-                    ordersHTML += `<div class="order-card">
+                    ordersHTML += `<div class="order-card" style="border-left:4px solid ${statusColor}">
                         <div class="order-header">
-                            <span class="order-date">${order.date}</span>
-                            <span class="order-status" style="background:${statusColor}">${order.status || 'Новый'}</span>
+                            <div>
+                                <span class="order-date" style="font-weight:600;color:var(--text-primary)">#${order.id.toString().slice(-6)}</span>
+                                <span class="order-date">${order.date}</span>
+                            </div>
+                            <span class="order-status" style="background:${statusColor};animation:none">${order.status}</span>
                         </div>
-                        <div class="order-items">${items}</div>
-                        <div class="order-total">${order.total} ₽ — ${order.customer}${order.promo ? ' (промокод: ' + order.promo + ')' : ''}</div>
-                        ${isAdmin ? '<div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px">Тел: ' + order.phone + ' | Адрес: ' + order.address + ', кв.' + order.apartment + ', под.' + order.entrance + ', эт.' + order.floor + '</div>' : ''}
+                        <div class="order-items" style="margin:8px 0">${items}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="order-total">${order.total} ₽</div>
+                            <span style="font-size:0.8rem;color:var(--text-secondary)">${order.customer}</span>
+                        </div>
+                        ${isAdmin ? `<div style="margin-top:8px;padding:8px 12px;background:var(--bg-secondary);border-radius:8px;font-size:0.8rem;color:var(--text-secondary);line-height:1.6">
+                            📞 ${order.phone} · 📍 ${order.address}, кв.${order.apartment}, под.${order.entrance}, эт.${order.floor}
+                            ${order.promo ? '<br>🏷️ Промокод: ' + order.promo : ''}
+                        </div>` : ''}
                         ${adminActions}
                     </div>`;
                 });
             }
 
+            let statsHTML = '';
+            if (isAdmin) {
+                const newCount = allOrders.filter(o => o.status === 'Новый').length;
+                const cookingCount = allOrders.filter(o => o.status === 'Готовится').length;
+                const readyCount = allOrders.filter(o => o.status === 'Готов к выдаче').length;
+                const deliveringCount = allOrders.filter(o => o.status === 'Доставляется').length;
+                statsHTML = `
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+                    <div style="background:#3498db22;color:#3498db;border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.8rem;font-weight:800">${newCount}</div>
+                        <div style="font-size:0.7rem;font-weight:600">Новые</div>
+                    </div>
+                    <div style="background:#f39c1222;color:#f39c12;border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.8rem;font-weight:800">${cookingCount}</div>
+                        <div style="font-size:0.7rem;font-weight:600">Готовятся</div>
+                    </div>
+                    <div style="background:#27ae6022;color:#27ae60;border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.8rem;font-weight:800">${readyCount}</div>
+                        <div style="font-size:0.7rem;font-weight:600">Готовы</div>
+                    </div>
+                    <div style="background:#9b59b622;color:#9b59b6;border-radius:12px;padding:12px;text-align:center">
+                        <div style="font-size:1.8rem;font-weight:800">${deliveringCount}</div>
+                        <div style="font-size:0.7rem;font-weight:600">Доставка</div>
+                    </div>
+                </div>`;
+            }
+
             document.getElementById('profileModalContent').innerHTML = `
                 <button class="modal-close" onclick="closeProfile()">×</button>
                 <div class="profile-header">
-                    <div class="profile-avatar">${currentUser.name[0]}</div>
+                    <div class="profile-avatar" style="${isAdmin ? 'background:linear-gradient(135deg,#ff6b35,#ff4444)' : ''}">${currentUser.name[0]}</div>
                     <div>
                         <div class="profile-name">${currentUser.name}</div>
                         <div class="profile-role">${isAdmin ? 'Администратор' : 'Пользователь'}</div>
@@ -1018,7 +1057,8 @@
                             <div style="font-size:0.8rem;opacity:0.9">1 балл = 1 ₽ скидка</div>
                         </div>
                     </div>` : ''}
-                    <h3>${isAdmin ? 'Все заказы (' + allOrders.length + ')' : 'Мои заказы (' + userOrders.length + ')'}</h3>
+                    ${statsHTML}
+                    <h3>${isAdmin ? 'Все заказы' : 'Мои заказы'} (${userOrders.length})</h3>
                     ${ordersHTML}
                     <button class="logout-btn" onclick="logout()">Выйти</button>
                 </div>
@@ -1485,10 +1525,20 @@
             document.querySelector('.theme-btn').textContent = 'Светлая тема';
         }
 
-        fbLoad('bigfood/orders', data => { if (data) { allOrders = data; saveOrders(); renderProfile(); } });
+        fbLoad('bigfood/orders', data => { if (data) { allOrders = data; saveOrders(); if (currentUser && currentUser.role === 'admin') renderProfile(); } });
         fbLoad('bigfood/users', data => { if (data) { users = data; saveUsers(); } });
         fbLoad('bigfood/reviews', data => { if (data) { reviews = data; saveReviews(); renderMenu(); } });
         fbLoad('bigfood/ratings', data => { if (data) { ratings = data; saveRatings(); } });
+
+        db.ref('bigfood/orders').on('value', snap => {
+            if (snap.val()) { allOrders = snap.val(); localStorage.setItem('bigfood_orders', JSON.stringify(allOrders)); updateCartCount(); if (currentUser && currentUser.role === 'admin') renderProfile(); }
+        });
+        db.ref('bigfood/users').on('value', snap => {
+            if (snap.val()) { users = snap.val(); localStorage.setItem('bigfood_users', JSON.stringify(users)); }
+        });
+        db.ref('bigfood/reviews').on('value', snap => {
+            if (snap.val()) { reviews = snap.val(); localStorage.setItem('bigfood_reviews', JSON.stringify(reviews)); renderMenu(); }
+        });
 
         updateCartCount();
         updateAuthBtn();
