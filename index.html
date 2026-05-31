@@ -1748,7 +1748,7 @@
                         <div class="form-group"><label>Подъезд</label><input type="text" id="entrance" placeholder="3"></div>
                     </div>
                     <div class="form-group"><label>Этаж</label><input type="text" id="floor" placeholder="5"></div>
-                    <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+                    <button class="checkout-btn" onclick="checkout()">Попробовать бесплатно</button>
                 </div>`;
             }
             html += '</div>';
@@ -1776,29 +1776,8 @@
         let pendingOrder = null;
 
         function checkout() {
-            const fname = document.getElementById('fname').value.trim();
-            const lname = document.getElementById('lname').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-            const apartment = document.getElementById('apartment').value.trim();
-            const entrance = document.getElementById('entrance').value.trim();
-            const floor = document.getElementById('floor').value.trim();
-
-            if (!fname || !lname || !phone || !address || !apartment || !entrance || !floor) {
-                return alert('Заполните все поля!');
-            }
-
-            const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-            const discount = getDiscount(subtotal);
-            const pointsDiscount = getPointsDiscount(subtotal - discount);
-            const total = subtotal - discount - pointsDiscount;
-
-            pendingOrder = {
-                fname, lname, phone, address, apartment, entrance, floor,
-                subtotal, discount, pointsDiscount, total
-            };
-
-            renderPayment();
+            alert('Бесплатная еда, только в мышеловке 🪤');
+            playSound('error');
         }
 
         function renderPayment() {
